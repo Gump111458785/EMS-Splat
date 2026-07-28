@@ -1,0 +1,28 @@
+defaults:
+  - panoptic
+  - _self_
+
+dataset:
+  data_root: "data/panoptic"
+  initial_guess: "triang_metrabs"
+  poses_2d: "metrabs"
+  start_scene_id: 0
+  end_scene_id: 153
+  frame_step: 300
+  nviews: 4
+
+training:
+  seed: 0
+  lambda_consistency: 1e-5
+  lambda_epipolar: 5e-4
+  lambda_triangulation: 1e-4
+  lambda_symmetry_target: 5e-4
+  symmetry_margin: 10.0
+  lambda_ratio: 0.001
+  ratio_margin: 0.05
+  use_uncertainty_weighting: false
+  use_pose_manifold_prior: false
+  epipolar_fusion_strength: 0.0
+
+debug:
+  save_images: false
