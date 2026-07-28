@@ -1,3 +1,4 @@
+import csv
 from pathlib import Path
 
 import numpy as np
@@ -57,3 +58,25 @@ def test_random_block_returns_requested_block_count():
 
     assert mask.any()
     assert len(boxes) == 4
+
+
+def test_public_protocol_metadata_has_no_subject_level_data():
+    protocol_path = ROOT / "data" / "protocols" / "ems_occlusion_protocol_v1.csv"
+    with protocol_path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        rows = list(reader)
+
+    assert len(rows) == 14
+    assert set(reader.fieldnames or ()) == {
+        "dataset",
+        "protocol",
+        "occlusion_type",
+        "ratio",
+        "body_part",
+        "num_blocks",
+        "canonical_mask_seed",
+        "repeated_mask_seeds",
+        "interface",
+    }
+    assert all("subject" not in key.lower() for key in reader.fieldnames or ())
+    assert all("camera" not in key.lower() for key in reader.fieldnames or ())

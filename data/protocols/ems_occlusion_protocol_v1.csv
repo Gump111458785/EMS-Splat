@@ -1,0 +1,15 @@
+dataset,protocol,occlusion_type,ratio,body_part,num_blocks,canonical_mask_seed,repeated_mask_seeds,interface
+H36M,clean,clean,0.0,none,0,not_applicable,not_applicable,precomputed_2d_observations
+H36M,rectangle_0p2,rectangle,0.2,none,1,2026,not_applicable,heatmap_and_joint_validity
+H36M,rectangle_0p4,rectangle,0.4,none,1,2026,2024;2025;2026,heatmap_and_joint_validity
+H36M,rectangle_0p6,rectangle,0.6,none,1,2026,2024;2025;2026,heatmap_and_joint_validity
+H36M,random_block_0p2,random_block,0.2,none,4,2026,not_applicable,heatmap_and_joint_validity
+H36M,random_block_0p4,random_block,0.4,none,4,2026,2024;2025;2026,heatmap_and_joint_validity
+H36M,random_block_0p6,random_block,0.6,none,4,2026,2024;2025;2026,heatmap_and_joint_validity
+H36M,body_part_both_arms,body_part,semantic,both_arms,1,deterministic,not_applicable,heatmap_and_joint_validity
+H36M,body_part_both_legs,body_part,semantic,both_legs,1,deterministic,not_applicable,heatmap_and_joint_validity
+H36M,body_part_torso,body_part,semantic,torso,1,deterministic,not_applicable,heatmap_and_joint_validity
+Panoptic,clean,clean,0.0,none,0,not_applicable,not_applicable,precomputed_2d_observations
+Panoptic,rectangle_0p2,rectangle,0.2,none,1,2026,not_applicable,heatmap_and_joint_validity
+Panoptic,rectangle_0p4,rectangle,0.4,none,1,2026,2024;2025;2026,heatmap_and_joint_validity
+Panoptic,rectangle_0p6,rectangle,0.6,none,1,2026,2024;2025;2026,heatmap_and_joint_validity

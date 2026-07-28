@@ -29,3 +29,11 @@ per-scene optimization randomness. Neither is a network-training seed.
 Manifest-backed public VOC masks and native RGB detector experiments are
 separate protocols. Do not merge their values with observation-space results
 without an interface label.
+
+## Public release
+
+The canonical controlled conditions and mask-seed policy are distributed in
+`data/protocols/ems_occlusion_protocol_v1.csv`. This metadata is
+redistributable because it contains no base-dataset images, annotations,
+camera parameters or detector output. Licensing and generated-data boundaries
+are documented in `docs/DATASET_CARD.md`.

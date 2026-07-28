@@ -38,3 +38,8 @@ are accepted. S9/S11 are prohibited.
 No dataset, detector prediction, initial guess, or pose bank is included.
 Human3.6M and CMU Panoptic must be obtained and used under their provider
 terms.
+
+The repository does distribute the non-sensitive benchmark definition in
+`data/protocols/ems_occlusion_protocol_v1.csv`. It contains condition names,
+ratios and seeds only. See `docs/DATASET_CARD.md` for the generated-data
+release policy.

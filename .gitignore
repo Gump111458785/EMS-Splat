@@ -15,6 +15,9 @@ venv/
 # Datasets, detector outputs, pose banks, and checkpoints
 data/*
 !data/README.md
+!data/protocols/
+!data/protocols/README.md
+!data/protocols/*.csv
 *.npz
 *.npy
 *.pkl
