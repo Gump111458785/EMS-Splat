@@ -23,6 +23,12 @@ This repository derives from
 [SkelSplat](https://github.com/laurabragagnolo/SkelSplat) and
 [3D Gaussian Splatting](https://github.com/graphdeco-inria/gaussian-splatting).
 
+**Quick links:** [environment setup](#environment-setup) |
+[occlusion implementation](#where-the-occlusion-code-is) |
+[all 0.2-0.6 commands](#running-the-complete-occlusion-suite) |
+[data preparation](docs/DATA_PREPARATION.md) |
+[protocol card](docs/DATASET_CARD.md)
+
 ## Overview
 
 ![EMS-Splat framework](assets/framework.png)
@@ -113,9 +119,12 @@ data/protocols/    Redistributable occlusion protocol metadata
 docs/              Data, protocol and reproducibility documentation
 ```
 
-## Installation
+## Environment setup
 
-The tested environment uses Python 3.10, PyTorch 2.5.1 and CUDA 11.8.
+The tested environment uses Linux, Python 3.10, PyTorch 2.5.1 and CUDA 11.8.
+An NVIDIA CUDA-capable GPU is required for model optimization. Install
+[Miniconda](https://docs.conda.io/projects/miniconda/en/latest/) or an
+equivalent Conda distribution, then run:
 
 ```bash
 git clone https://github.com/Gump111458785/EMS-Splat.git
@@ -124,10 +133,33 @@ cd EMS-Splat
 conda env create -f environment.yml
 conda activate ems-splat
 bash scripts/install_extensions.sh
+python scripts/check_environment.py
+pytest -q tests/test_release_contract.py
+```
+
+The files involved are:
+
+| Purpose | File |
+|---|---|
+| Conda, Python, PyTorch and CUDA versions | [`environment.yml`](environment.yml) |
+| Pinned Python dependencies | [`requirements.txt`](requirements.txt) |
+| Build the five bundled CUDA/PyTorch extensions | [`scripts/install_extensions.sh`](scripts/install_extensions.sh) |
+| Print versions and verify CUDA/extension imports | [`scripts/check_environment.py`](scripts/check_environment.py) |
+
+To refresh an existing environment after pulling changes:
+
+```bash
+conda env update --name ems-splat --file environment.yml --prune
+conda activate ems-splat
+bash scripts/install_extensions.sh
+python scripts/check_environment.py
 ```
 
 The custom rasterizer sources are vendored for reproducible builds. Compiled
-objects are intentionally excluded from Git.
+objects are intentionally excluded from Git. A CPU host can run the limited
+dependency check with
+`python scripts/check_environment.py --allow-no-cuda --skip-extensions`, but
+it cannot run EMS-Splat optimization.
 
 ## Data and protocol release
 
@@ -168,6 +200,35 @@ data/
 See [`docs/DATA_PREPARATION.md`](docs/DATA_PREPARATION.md) and
 [`dataset_tools/README.md`](dataset_tools/README.md).
 
+## Where the occlusion code is
+
+All three controlled occlusion families are included in the public repository:
+
+| Functionality | Public implementation |
+|---|---|
+| Stable scene/camera/seed RNG | [`make_rng`](utils/occlusion_utils.py#L28-L30) |
+| Rectangle mask, including ratios 0.2/0.4/0.6 | [`apply_rectangle_occlusion`](utils/occlusion_utils.py#L66-L97) |
+| Four-block random mask at 0.2/0.4/0.6 | [`apply_random_block_occlusion`](utils/occlusion_utils.py#L100-L133) |
+| H36M body-part joint groups | [`H36M_BODY_PARTS`](utils/occlusion_utils.py#L12-L20) |
+| Both-arms, both-legs and torso masks | [`apply_joint_occlusion`](utils/occlusion_utils.py#L136-L188) |
+| Runtime dispatcher for all mask types | [`apply_test_occlusion_to_observations`](utils/occlusion_utils.py#L253-L347) |
+| Training-loop application and mask manifest | [`train.py`](train.py#L1154-L1192) |
+| Hydra parameters | [`configs/h36m.yaml`](configs/h36m.yaml#L110-L123) |
+| Canonical condition/seed table | [`ems_occlusion_protocol_v1.csv`](data/protocols/ems_occlusion_protocol_v1.csv) |
+
+The implementation masks joint heatmaps and invalidates detected joints that
+fall inside the mask. It does not simply change a label in the evaluator.
+For random-block conditions, `ratio` is the requested sum of four block areas.
+Blocks may overlap, so the realized unique-pixel coverage can be lower; each
+run records the actual `masked_pixels` value in its mask manifest.
+
+Run a data-free CPU smoke test covering rectangle 0.2/0.4/0.6, random-block
+0.2/0.4/0.6 and all three semantic body parts:
+
+```bash
+python scripts/smoke_occlusion_protocol.py
+```
+
 ## Leakage-safe H36M pose bank
 
 The final H36M model requires a reference bank built only from training
@@ -192,6 +253,38 @@ Clean H36M:
 python train.py --config-name h36m
 python eval.py --config-name h36m
 ```
+
+### Running the complete occlusion suite
+
+The repository provides a default-safe runner for all nine non-clean
+conditions: rectangle and random-block at 0.2, 0.4 and 0.6, followed by both
+arms, both legs and torso.
+
+First inspect every generated command without launching optimization:
+
+```bash
+bash scripts/run_h36m_occlusion_suite.sh --dry-run
+```
+
+After the data paths and environment are ready, launch the suite explicitly:
+
+```bash
+bash scripts/run_h36m_occlusion_suite.sh --execute
+```
+
+The script defaults to `CONFIG=h36m` and `MASK_SEED=2026`. They can be
+overridden without editing source:
+
+```bash
+CONFIG=h36m MASK_SEED=2024 \
+  bash scripts/run_h36m_occlusion_suite.sh --execute
+```
+
+This is a full per-scene optimization sweep and can be expensive. Use the
+dry-run output to integrate conditions into a scheduler or tmux queue when
+needed.
+
+### Individual conditions
 
 Rectangle occlusion:
 

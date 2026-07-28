@@ -39,7 +39,8 @@ triangulations.
 
 1. **Rectangle:** one contiguous block at area ratios 0.2, 0.4 and 0.6.
 2. **Random block:** the requested area is divided among four blocks at ratios
-   0.2, 0.4 and 0.6.
+   0.2, 0.4 and 0.6. Blocks are sampled independently and can overlap, so the
+   realized unique-pixel coverage may be lower than the requested ratio.
 3. **Body part:** a deterministic padded bounding region covers both arms,
    both legs or the torso according to the H36M 17-joint convention.
 4. **Public mask:** an optional manifest-backed arbitrary-mask interface,
@@ -59,7 +60,8 @@ occlusion performance.
 
 Every baseline/EMS comparison must use the same scene list, observations,
 mask manifest and official evaluation conversion. Mask seeds must never be
-reported as network-training seeds.
+reported as network-training seeds. For random-block runs, use the manifest's
+`masked_pixels` field when auditing realized coverage.
 
 ## Generated-data release policy
 

@@ -12,7 +12,10 @@ plane. Ratios used in the paper are 0.2, 0.4, and 0.6.
 ## Random block
 
 The same total area is divided across four independently placed blocks.
-Ratios used in the paper are 0.2, 0.4, and 0.6.
+Requested ratios used in the paper are 0.2, 0.4, and 0.6. Independently placed
+blocks may overlap, so the union can cover fewer unique pixels than the
+requested summed block area. Per-run manifests record the realized pixel
+count.
 
 ## Body part
 
